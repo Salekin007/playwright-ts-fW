@@ -16,29 +16,35 @@ test('editing an employee persists the new first name @regression', async ({
   toast,
 }) => {
   const listPage = new EmployeeListPage(authenticatedPage);
-  await listPage.goto();
-  await listPage.searchByName(testEmployee.lastName);
-  await listPage.openEmployee(testEmployee.lastName);
-
-  // We landed on OUR employee's details page, not somebody else's.
-  await expect(authenticatedPage).toHaveURL(new RegExp(`empNumber/${testEmployee.empNumber}$`));
-
   const detailsPage = new EmployeeDetailsPage(authenticatedPage);
   const editedFirstName = `${testEmployee.firstName}Edited`;
 
-  // Precondition: the form shows the SERVER's value for our employee —
-  // proves the details GET has been bound before we start editing.
-  await expect(detailsPage.firstNameInput).toHaveValue(testEmployee.firstName);
+  await test.step('open the test employee details page', async () => {
+    await listPage.goto();
+    await listPage.searchByName(testEmployee.lastName);
+    await listPage.openEmployee(testEmployee.lastName);
 
-  await detailsPage.updateFirstName(editedFirstName);
+    // We landed on OUR employee's details page, not somebody else's.
+    await expect(authenticatedPage).toHaveURL(new RegExp(`empNumber/${testEmployee.empNumber}$`));
+  });
 
-  await toast.waitFor('success');
-  expect(await toast.getText('success')).toContain('Successfully Updated');
+  await test.step('update the first name and save', async () => {
+    // Precondition: the form shows the SERVER's value for our employee —
+    // proves the details GET has been bound before we start editing.
+    await expect(detailsPage.firstNameInput).toHaveValue(testEmployee.firstName);
 
-  // Reload — the shown value must now come from the server, not our input.
-  // toHaveValue polls: the Vue form mounts with EMPTY inputs and only
-  // fills them once the personal-details GET lands, so a one-shot
-  // inputValue() read races the data load (verified the hard way).
-  await authenticatedPage.reload({ waitUntil: 'domcontentloaded' });
-  await expect(detailsPage.firstNameInput).toHaveValue(editedFirstName);
+    await detailsPage.updateFirstName(editedFirstName);
+
+    await toast.waitFor('success');
+    expect(await toast.getText('success')).toContain('Successfully Updated');
+  });
+
+  await test.step('reload and verify the value came back from the server', async () => {
+    // Reload — the shown value must now come from the server, not our input.
+    // toHaveValue polls: the Vue form mounts with EMPTY inputs and only
+    // fills them once the personal-details GET lands, so a one-shot
+    // inputValue() read races the data load (verified the hard way).
+    await authenticatedPage.reload({ waitUntil: 'domcontentloaded' });
+    await expect(detailsPage.firstNameInput).toHaveValue(editedFirstName);
+  });
 });

@@ -95,6 +95,7 @@ halfway through.
 | `npm run test:debug`                                 | Run in Playwright Inspector (step-by-step) |
 | `npm run test:ui`                                    | Run in Playwright UI mode                  |
 | `npm run report`                                     | Open the HTML report                       |
+| `npm run report:allure`                              | Build & open the Allure report             |
 | `npm run typecheck`                                  | `tsc --noEmit` strict type check           |
 | `npm run lint`                                       | ESLint                                     |
 | `npm run format`                                     | Prettier write                             |
@@ -113,9 +114,10 @@ into `playwright-report/` — open it with `npm run report`.
 
 ### Allure
 
-Every run also writes Allure data into `allure-results/` (gitignored). View it
-with `npx allure serve allure-results` (requires the
-[Allure CLI](https://allurereport.org/docs/install/)).
+Every run also writes Allure data into `allure-results/` (gitignored) — with
+`test.step` phase grouping in key specs and setup-data attachments from the
+fixtures. Build and open the report with `npm run report:allure` (requires the
+[Allure CLI](https://allurereport.org/docs/install/), e.g. `brew install allure`).
 
 ## Design Decisions
 

@@ -29,8 +29,14 @@ export const test = appTest.extend<PimFixtures>({
     await use(new EmployeeApi(client.http));
     await client.dispose();
   },
-  testEmployee: async ({ employeeApi }, use) => {
+  testEmployee: async ({ employeeApi }, use, testInfo) => {
     const employee = await employeeApi.create(createEmployee());
+    // Attach the record: any failed run shows exactly which employee this
+    // test owned — priceless when debugging data or collision issues.
+    await testInfo.attach('test employee (API setup)', {
+      body: JSON.stringify(employee, null, 2),
+      contentType: 'application/json',
+    });
     await use(employee);
     await employeeApi.delete([employee.empNumber]).catch(() => undefined);
   },

@@ -32,11 +32,17 @@ export const test = pimTest.extend<AdminFixtures>({
     await use(new UserApi(client.http));
     await client.dispose();
   },
-  testUser: async ({ employeeApi, userApi }, use) => {
+  testUser: async ({ employeeApi, userApi }, use, testInfo) => {
     const employee = await employeeApi.create(createUserEmployee());
     const user = await userApi.create({
       ...createUser(),
       empNumber: employee.empNumber,
+    });
+    // Attach both records for post-mortem debugging. Note: this is the API
+    // RESPONSE — it contains no password. Never attach credentials.
+    await testInfo.attach('test user + employee (API setup)', {
+      body: JSON.stringify({ user, employee }, null, 2),
+      contentType: 'application/json',
     });
     await use({ user, employee });
 
