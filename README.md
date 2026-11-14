@@ -68,36 +68,36 @@ All configuration lives in `.env` (never committed). `src/config/env.ts` validat
 every value at startup — a bad config fails the run immediately, never a test
 halfway through.
 
-| Variable              | Purpose                                            | Default in `.env.example`                  |
-| --------------------- | -------------------------------------------------- | ------------------------------------------ |
-| `TEST_ENV`            | Deployment under test                              | `demo`                                     |
-| `BASE_URL`            | Application under test                             | `https://opensource-demo.orangehrmlive.com` |
-| `ADMIN_USERNAME`      | Login username (public demo credential)            | `Admin`                                    |
-| `ADMIN_PASSWORD`      | Login password (public demo credential)            | `admin123`                                 |
-| `TEST_TIMEOUT`        | Budget for one test (ms) — shared server is slow   | `90000`                                    |
-| `ACTION_TIMEOUT`      | Budget for one action (ms)                         | `20000`                                    |
-| `NAVIGATION_TIMEOUT`  | Budget for one navigation (ms)                     | `30000`                                    |
-| `EXPECT_TIMEOUT`      | Budget for one `expect()` (ms)                     | `10000`                                    |
-| `WORKERS`             | Parallel workers — kept low, the demo site is shared infra | `2`                              |
-| `HEADLESS`            | `false` locally to watch the browser               | `true`                                     |
-| `RETRIES`             | Optional override (CI forces `2`)                  | `1` local                                  |
+| Variable             | Purpose                                                    | Default in `.env.example`                   |
+| -------------------- | ---------------------------------------------------------- | ------------------------------------------- |
+| `TEST_ENV`           | Deployment under test                                      | `demo`                                      |
+| `BASE_URL`           | Application under test                                     | `https://opensource-demo.orangehrmlive.com` |
+| `ADMIN_USERNAME`     | Login username (public demo credential)                    | `Admin`                                     |
+| `ADMIN_PASSWORD`     | Login password (public demo credential)                    | `admin123`                                  |
+| `TEST_TIMEOUT`       | Budget for one test (ms) — shared server is slow           | `90000`                                     |
+| `ACTION_TIMEOUT`     | Budget for one action (ms)                                 | `20000`                                     |
+| `NAVIGATION_TIMEOUT` | Budget for one navigation (ms)                             | `30000`                                     |
+| `EXPECT_TIMEOUT`     | Budget for one `expect()` (ms)                             | `10000`                                     |
+| `WORKERS`            | Parallel workers — kept low, the demo site is shared infra | `2`                                         |
+| `HEADLESS`           | `false` locally to watch the browser                       | `true`                                      |
+| `RETRIES`            | Optional override (CI forces `2`)                          | `1` local                                   |
 
 ## Commands
 
-| Command                                             | What it does                               |
-| --------------------------------------------------- | ------------------------------------------ |
-| `npm test`                                          | Run all tests (headless)                   |
-| `npm run test:smoke`                                | Only tests tagged `@smoke`                 |
-| `npm run test:regression`                           | Everything except `@smoke`                 |
-| `npx playwright test tests/pim/add-employee.spec.ts`| Run a single spec file                     |
+| Command                                              | What it does                               |
+| ---------------------------------------------------- | ------------------------------------------ |
+| `npm test`                                           | Run all tests (headless)                   |
+| `npm run test:smoke`                                 | Only tests tagged `@smoke`                 |
+| `npm run test:regression`                            | Everything except `@smoke`                 |
+| `npx playwright test tests/pim/add-employee.spec.ts` | Run a single spec file                     |
 | `npx playwright test --grep "searching by username"` | Run tests matching a title substring       |
-| `npm run test:headed`                               | Run all tests with a visible browser       |
-| `npm run test:debug`                                | Run in Playwright Inspector (step-by-step) |
-| `npm run test:ui`                                   | Run in Playwright UI mode                  |
-| `npm run report`                                    | Open the HTML report                       |
-| `npm run typecheck`                                 | `tsc --noEmit` strict type check           |
-| `npm run lint`                                      | ESLint                                     |
-| `npm run format`                                    | Prettier write                             |
+| `npm run test:headed`                                | Run all tests with a visible browser       |
+| `npm run test:debug`                                 | Run in Playwright Inspector (step-by-step) |
+| `npm run test:ui`                                    | Run in Playwright UI mode                  |
+| `npm run report`                                     | Open the HTML report                       |
+| `npm run typecheck`                                  | `tsc --noEmit` strict type check           |
+| `npm run lint`                                       | ESLint                                     |
+| `npm run format`                                     | Prettier write                             |
 
 ## Reporting
 
@@ -120,7 +120,7 @@ with `npx allure serve allure-results` (requires the
 ## Design Decisions
 
 1. **Fixture-based auth, not project-level `storageState`.** The session is
-   injected as an `authenticatedPage` fixture. Auth specs need an *anonymous*
+   injected as an `authenticatedPage` fixture. Auth specs need an _anonymous_
    page — project-level storage state would silently break them.
 2. **Zero assertions in page objects.** Pages expose state and actions; specs
    own assertions. Tests stay the single place where pass/fail is decided.
