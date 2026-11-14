@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Playwright artifacts
+test-results/
+playwright-report/
+.blob-report/
+
+# Allure artifacts
+allure-results/
+allure-report/
+
+# Auth state — contains session cookies, never commit
+.auth/
+
+# Environment — contains credentials, never commit
+.env
+
+# Logs & OS noise
+*.log
+.DS_Store
+
+# TypeScript build info
+*.tsbuildinfo
