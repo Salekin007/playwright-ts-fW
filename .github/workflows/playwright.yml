@@ -1,0 +1,70 @@
+# Playwright CI — smoke suite on pull requests, full suite on main.
+#
+# Credentials and base URL come from GitHub Secrets — never from the repo.
+# Required secrets (Settings → Secrets and variables → Actions):
+#   OHRM_BASE_URL         e.g. https://opensource-demo.orangehrmlive.com
+#   OHRM_ADMIN_USERNAME   admin username for the app under test
+#   OHRM_ADMIN_PASSWORD   admin password for the app under test
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # allows a manual run from the Actions tab
+
+jobs:
+  test:
+    name: Playwright (${{ github.event_name == 'pull_request' && 'smoke' || 'full' }})
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    env:
+      # Map secrets onto the env vars src/config/env.ts reads. There is no
+      # .env file on CI (gitignored) — process.env is the only source.
+      BASE_URL: ${{ secrets.OHRM_BASE_URL }}
+      ADMIN_USERNAME: ${{ secrets.OHRM_ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.OHRM_ADMIN_PASSWORD }}
+      # Note: GitHub Actions sets CI=true automatically. env.ts picks that
+      # up and switches retries to 2 and forbids test.only. WORKERS already
+      # defaults to 2 inside env.ts (tuned for the shared demo server).
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node LTS with npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies (lockfile-exact)
+        run: npm ci
+
+      - name: Install Chromium with OS-level dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke suite (pull request)
+        if: github.event_name == 'pull_request'
+        run: npm run test:smoke
+
+      - name: Run full suite (push to main / manual)
+        if: github.event_name != 'pull_request'
+        run: npm test
+
+      - name: Upload Playwright HTML report
+        uses: actions/upload-artifact@v4
+        if: always() # upload even when tests fail — that is when you need it
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload raw test results (traces, videos, screenshots)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 14
