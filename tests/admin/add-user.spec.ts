@@ -10,6 +10,26 @@ import { UserManagementPage } from '@src/pages/admin/user-management.page';
  * existing employee); the user itself is created through the form. This
  * flow shows NO toast (verified live) — success is proven by search.
  */
+test('creating a user with an already-taken username is rejected @regression', async ({
+  authenticatedPage,
+  testUser,
+}) => {
+  const addPage = new AddUserPage(authenticatedPage);
+  await addPage.goto();
+
+  // A fully valid form — ONLY the username collides with the API-created
+  // testUser, so the single inline error is unambiguous.
+  await addPage.fillUser(
+    { ...createUser(), username: testUser.user.userName },
+    testUser.employee.lastName,
+  );
+  await addPage.save();
+
+  await expect(addPage.fieldErrors).toHaveCount(1);
+  await expect(addPage.fieldErrors.first()).toHaveText('Already exists');
+  await expect(authenticatedPage).toHaveURL(/admin\/saveSystemUser/);
+});
+
 test('adding a system user via the UI shows it in search @regression', async ({
   authenticatedPage,
   employeeApi,

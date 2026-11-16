@@ -14,6 +14,8 @@ export interface EmployeeData {
   firstName: string;
   middleName?: string;
   lastName: string;
+  /** Custom employee id for the Add Employee form (max 10 chars — verified). */
+  employeeId?: string;
 }
 
 /** Monotonic guard against same-millisecond collisions across workers. */

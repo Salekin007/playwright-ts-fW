@@ -30,6 +30,9 @@ export class AddUserPage {
   private readonly confirmPasswordInput: Locator;
   private readonly saveButton: Locator;
 
+  /** Inline validation messages under the fields (appear on submit). */
+  readonly fieldErrors: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.roleSelect = new SelectComponent(page.locator('.oxd-select-wrapper').first());
@@ -42,6 +45,7 @@ export class AddUserPage {
     this.passwordInput = page.locator('input[type="password"]').first();
     this.confirmPasswordInput = page.locator('input[type="password"]').nth(1);
     this.saveButton = page.getByRole('button', { name: 'Save' });
+    this.fieldErrors = page.locator('.oxd-input-field-error-message');
   }
 
   async goto(): Promise<void> {
@@ -49,20 +53,33 @@ export class AddUserPage {
   }
 
   /**
-   * Create a user through the form and land back on the users list.
+   * Fill the whole form without submitting — invalid-submission specs
+   * (e.g. duplicate username) must NOT wait for the list navigation.
    *
    * @param user credentials/role/status (from the factory — unique username)
    * @param employeeLastName unique last name of an EXISTING employee; the
    *        autocomplete picks its option by this text
    */
-  async addUser(user: UserData, employeeLastName: string): Promise<void> {
+  async fillUser(user: UserData, employeeLastName: string): Promise<void> {
     await this.roleSelect.select(user.role);
     await this.employeeName.select(employeeLastName, employeeLastName);
     await this.statusSelect.select(user.status);
     await this.usernameInput.fill(user.username);
     await this.passwordInput.fill(user.password);
     await this.confirmPasswordInput.fill(user.password);
+  }
+
+  /** Click Save. Valid forms navigate to the list; invalid ones stay. */
+  async save(): Promise<void> {
     await this.saveButton.click();
+  }
+
+  /**
+   * Create a user through the form and land back on the users list.
+   */
+  async addUser(user: UserData, employeeLastName: string): Promise<void> {
+    await this.fillUser(user, employeeLastName);
+    await this.save();
 
     // No toast on this flow — arrival back on the list is the signal.
     await this.page.waitForURL(routes.admin);
