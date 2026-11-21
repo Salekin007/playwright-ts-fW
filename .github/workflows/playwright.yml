@@ -25,9 +25,17 @@ jobs:
       BASE_URL: ${{ secrets.OHRM_BASE_URL }}
       ADMIN_USERNAME: ${{ secrets.OHRM_ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.OHRM_ADMIN_PASSWORD }}
+      # The shared demo server randomly stalls >30s on navigation (verified
+      # repeatedly — see src/config/env.ts). Local runs rarely hit it, but CI
+      # runners sit farther from the server and a full suite makes many
+      # navigations, so the 30s default timeout was failing healthy tests.
+      # Raise the navigation budget and add one more retry attempt on CI;
+      # genuine failures still fail every attempt.
+      NAVIGATION_TIMEOUT: "60000"
+      RETRIES: "3"
       # Note: GitHub Actions sets CI=true automatically. env.ts picks that
-      # up and switches retries to 2 and forbids test.only. WORKERS already
-      # defaults to 2 inside env.ts (tuned for the shared demo server).
+      # up and forbids test.only. WORKERS already defaults to 2 inside
+      # env.ts (tuned for the shared demo server).
 
     steps:
       - name: Check out repository
